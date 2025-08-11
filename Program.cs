@@ -6,12 +6,14 @@ namespace Lox;
 
 public class Program
 {
-    public static int Main(string[] args)
+    public static bool HasError = false;
+
+    public static void Main(string[] args)
     {
         if (args.Length > 1)
         {
             Console.WriteLine("Usage: cslox [script]");
-            return 64;
+            Environment.Exit(64);
         }
         else if (args.Length == 1)
         {
@@ -21,13 +23,16 @@ public class Program
         {
             RunPrompt();
         }
-        return 0;
+        Environment.Exit(0);
     }
 
     public static void RunFile(string path)
     {
         var bytes = File.ReadAllBytes(Path.GetFullPath(path));
         Run(Encoding.UTF8.GetString(bytes));
+
+        if (HasError)
+            Environment.Exit(65);
     }
 
     public static void RunPrompt()
@@ -39,6 +44,7 @@ public class Program
             if (line == null)
                 break;
             Run(line);
+            HasError = false;
         }
     }
 
@@ -51,5 +57,16 @@ public class Program
         {
             Console.WriteLine(token.Value);
         }
+    }
+
+    public static void Error(int line, string message)
+    {
+        Report(line, "", message);
+    }
+
+    public static void Report(int line, string where, string message)
+    {
+        Console.Error.WriteLine($"[line {line}] Error{where}: {message}");
+        HasError = true;
     }
 }
