@@ -13,11 +13,7 @@ public class Scanner
 
     public List<Token> ScanTokens()
     {
-        return new List<Token>() { new Token()
-            {
-                Value = Source,
-            }
-        };
+        return new List<Token>();
     }
 }
 

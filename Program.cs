@@ -55,7 +55,6 @@ public class Program
 
         foreach (var token in tokens)
         {
-            Console.WriteLine(token.Value);
         }
     }
 
