@@ -1,10 +1,10 @@
-﻿using System.Text;
+using System.Text;
 using cslox.Models;
 using cslox.Services;
 
-namespace Lox;
+namespace cslox;
 
-public class Program
+public static class Lox
 {
     public static bool HasError = false;
 
@@ -55,6 +55,7 @@ public class Program
 
         foreach (var token in tokens)
         {
+            Console.WriteLine(token.ToString());
         }
     }
 
@@ -69,3 +70,4 @@ public class Program
         HasError = true;
     }
 }
+
