@@ -81,10 +81,14 @@ public class Scanner
             case '/':
                 if (Match('/'))
                 {
-                    while (Peek() != '\n' && !IsAtEnd)
-                    {
-                        Advance();
-                    }
+                    while (Peek() != '\n' && !IsAtEnd) { Advance(); }
+                }
+                else if (Match('*'))
+                {
+                    // Handle multi-line comments
+                    while (Peek() != '*' && PeekNext() != '/') { Advance(); }
+                    Advance();
+                    Advance();
                 }
                 else
                 {
