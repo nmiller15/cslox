@@ -14,4 +14,9 @@ public class Binary : Expr
         Operator = oper;
         Right = right;
     }
+
+    public override T Accept<T>(IVisitor<T> visitor)
+    {
+        return visitor.visitBinaryExpr(this);
+    }
 }

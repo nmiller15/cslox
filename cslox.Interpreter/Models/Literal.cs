@@ -10,4 +10,9 @@ public class Literal : Expr
     {
         Value = value;
     }
+
+    public override T Accept<T>(IVisitor<T> visitor)
+    {
+        return visitor.visitLiteralExpr(this);
+    }
 }

@@ -10,4 +10,9 @@ public class Grouping : Expr
     {
         Expression = expression;
     }
+
+    public override T Accept<T>(IVisitor<T> visitor)
+    {
+        return visitor.visitGroupingExpr(this);
+    }
 }
