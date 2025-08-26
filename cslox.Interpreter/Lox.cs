@@ -1,4 +1,5 @@
 using System.Text;
+using cslox.Interpreter.Services;
 using cslox.Models;
 using cslox.Services;
 
@@ -53,9 +54,23 @@ public static class Lox
         var scanner = new Scanner(source);
         List<Token> tokens = scanner.ScanTokens();
 
-        foreach (var token in tokens)
+        var parser = new Parser(tokens);
+        Expr expression = parser.Parse();
+
+        if (HasError) return;
+
+        Console.WriteLine(new AstPrinter().Print(expression));
+    }
+
+    public static void Error(Token token, string message)
+    {
+        if (token.Type == Token.TokenTypes.EOF)
         {
-            Console.WriteLine(token.ToString());
+            Report(token.Line, " at end", "message");
+        }
+        else
+        {
+            Report(token.Line, " at '" + token.Lexeme + "'", message);
         }
     }
 
