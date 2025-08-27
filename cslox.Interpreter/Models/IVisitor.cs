@@ -8,4 +8,5 @@ public interface IVisitor<T>
     T visitGroupingExpr(Grouping expr);
     T visitLiteralExpr(Literal expr);
     T visitUnaryExpr(Unary expr);
+    T visitTernaryExpr(Ternary expr);
 }

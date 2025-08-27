@@ -22,6 +22,9 @@ public class AstPrinter : IVisitor<string>
         return expr.Value.ToString();
     }
 
+    public string visitTernaryExpr(Ternary expr)
+        => Parenthesize($"{expr.Operator.Lexeme}{expr.Separator.Lexeme}", expr.Condition, expr.IfTrue, expr.IfFalse);
+
     public string visitUnaryExpr(Unary expr)
         => Parenthesize(expr.Operator.Lexeme, expr.Right);
 

@@ -17,7 +17,8 @@ class Program
             "Binary : Expr Left, Token Operator, Expr Right",
             "Grouping : Expr Expression",
             "Literal : object Value",
-            "Unary : Token Operator, Expr Right"
+            "Unary : Token Operator, Expr Right",
+            "Ternary : Expr Condition, Token Operator, Expr IfTrue, Token Separator, Expr IfFalse"
         });
 
     }

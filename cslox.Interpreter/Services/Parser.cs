@@ -76,13 +76,30 @@ public class Parser
 
     private Expr Block()
     {
-        Expr expr = Equality();
+        Expr expr = Ternary();
 
         while (Match(Comma))
         {
             Token oper = Previous();
-            Expr right = Equality();
+            Expr right = Ternary();
             expr = new Binary(expr, oper, right);
+        }
+
+        return expr;
+    }
+
+    private Expr Ternary()
+    {
+        Expr expr = Equality();
+
+        if (Match(Question))
+        {
+            Token oper = Previous();
+            Expr ifTrue = Ternary();
+            Token separator = Consume(Colon, "Expect ':' after expression.");
+            Expr ifFalse = Ternary();
+
+            expr = new Ternary(expr, oper, ifTrue, separator, ifFalse);
         }
 
         return expr;
