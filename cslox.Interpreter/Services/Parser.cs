@@ -71,7 +71,21 @@ public class Parser
 
     private Expr Expression()
     {
-        return Equality();
+        return Block();
+    }
+
+    private Expr Block()
+    {
+        Expr expr = Equality();
+
+        while (Match(Comma))
+        {
+            Token oper = Previous();
+            Expr right = Equality();
+            expr = new Binary(expr, oper, right);
+        }
+
+        return expr;
     }
 
     private Expr Equality()
