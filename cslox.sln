@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "cslox.Interpreter", "cslox.Interpreter", "{97AFE88C-DC38-6771-1FCE-EA59DEB02F28}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cslox", "cslox.Interpreter\cslox.csproj", "{31693D05-C422-413C-8096-901B41E98E4E}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "cslox.GenerateAst", "cslox.GenerateAst", "{BC2481A4-0F23-F3ED-E6A4-B984071C8FE3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenerateAst", "cslox.GenerateAst\GenerateAst.csproj", "{C43893F0-731D-43A7-AD9C-D353A9E553DA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "cslox.App", "cslox.App", "{B3CC6589-411C-8C3E-A7D7-EB6A63A7ECE7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cslox", "cslox.App\cslox.csproj", "{CC36A1FE-692D-4335-9541-2C53003980C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,18 +21,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{31693D05-C422-413C-8096-901B41E98E4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{31693D05-C422-413C-8096-901B41E98E4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{31693D05-C422-413C-8096-901B41E98E4E}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{31693D05-C422-413C-8096-901B41E98E4E}.Debug|x64.Build.0 = Debug|Any CPU
-		{31693D05-C422-413C-8096-901B41E98E4E}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{31693D05-C422-413C-8096-901B41E98E4E}.Debug|x86.Build.0 = Debug|Any CPU
-		{31693D05-C422-413C-8096-901B41E98E4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{31693D05-C422-413C-8096-901B41E98E4E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{31693D05-C422-413C-8096-901B41E98E4E}.Release|x64.ActiveCfg = Release|Any CPU
-		{31693D05-C422-413C-8096-901B41E98E4E}.Release|x64.Build.0 = Release|Any CPU
-		{31693D05-C422-413C-8096-901B41E98E4E}.Release|x86.ActiveCfg = Release|Any CPU
-		{31693D05-C422-413C-8096-901B41E98E4E}.Release|x86.Build.0 = Release|Any CPU
 		{C43893F0-731D-43A7-AD9C-D353A9E553DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C43893F0-731D-43A7-AD9C-D353A9E553DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C43893F0-731D-43A7-AD9C-D353A9E553DA}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -45,12 +33,24 @@ Global
 		{C43893F0-731D-43A7-AD9C-D353A9E553DA}.Release|x64.Build.0 = Release|Any CPU
 		{C43893F0-731D-43A7-AD9C-D353A9E553DA}.Release|x86.ActiveCfg = Release|Any CPU
 		{C43893F0-731D-43A7-AD9C-D353A9E553DA}.Release|x86.Build.0 = Release|Any CPU
+		{CC36A1FE-692D-4335-9541-2C53003980C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC36A1FE-692D-4335-9541-2C53003980C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC36A1FE-692D-4335-9541-2C53003980C2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CC36A1FE-692D-4335-9541-2C53003980C2}.Debug|x64.Build.0 = Debug|Any CPU
+		{CC36A1FE-692D-4335-9541-2C53003980C2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CC36A1FE-692D-4335-9541-2C53003980C2}.Debug|x86.Build.0 = Debug|Any CPU
+		{CC36A1FE-692D-4335-9541-2C53003980C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC36A1FE-692D-4335-9541-2C53003980C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC36A1FE-692D-4335-9541-2C53003980C2}.Release|x64.ActiveCfg = Release|Any CPU
+		{CC36A1FE-692D-4335-9541-2C53003980C2}.Release|x64.Build.0 = Release|Any CPU
+		{CC36A1FE-692D-4335-9541-2C53003980C2}.Release|x86.ActiveCfg = Release|Any CPU
+		{CC36A1FE-692D-4335-9541-2C53003980C2}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{31693D05-C422-413C-8096-901B41E98E4E} = {97AFE88C-DC38-6771-1FCE-EA59DEB02F28}
 		{C43893F0-731D-43A7-AD9C-D353A9E553DA} = {BC2481A4-0F23-F3ED-E6A4-B984071C8FE3}
+		{CC36A1FE-692D-4335-9541-2C53003980C2} = {B3CC6589-411C-8C3E-A7D7-EB6A63A7ECE7}
 	EndGlobalSection
 EndGlobal
