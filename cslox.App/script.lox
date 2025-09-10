@@ -1,0 +1,4 @@
+print "Hello, world";
+print true;
+print 4 == 2;
+print "This is a script that is being read by my own interpreter!";

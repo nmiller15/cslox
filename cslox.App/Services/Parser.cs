@@ -16,16 +16,43 @@ public class Parser
         Tokens = tokens;
     }
 
-    public Expr Parse()
+    public List<Stmt> Parse()
     {
+        // adding my own error handling temporarily
         try
         {
-            return Expression();
+            var statements = new List<Stmt>();
+            while (!IsAtEnd())
+            {
+                statements.Add(Statement());
+            }
+
+            return statements;
         }
-        catch (ParseError error)
+        catch (ParseError)
         {
             return null;
         }
+    }
+
+    private Stmt Statement()
+    {
+        if (Match(Print)) return PrintStatement();
+        return ExpressionStatement();
+    }
+
+    private Stmt PrintStatement()
+    {
+        var value = Expression();
+        Consume(Semicolon, "Expect ';' after value.");
+        return new Stmt.Print(value);
+    }
+
+    private Stmt ExpressionStatement()
+    {
+        var expr = Expression();
+        Consume(Semicolon, "Expect ';' after expression.");
+        return new Stmt.Expression(expr);
     }
 
     private bool Match(params TokenTypes[] types)
@@ -82,7 +109,7 @@ public class Parser
         {
             Token oper = Previous();
             Expr right = Ternary();
-            expr = new Binary(expr, oper, right);
+            expr = new Expr.Binary(expr, oper, right);
         }
 
         return expr;
@@ -99,7 +126,7 @@ public class Parser
             Token separator = Consume(Colon, "Expect ':' after expression.");
             Expr ifFalse = Ternary();
 
-            expr = new Ternary(expr, oper, ifTrue, separator, ifFalse);
+            expr = new Expr.Ternary(expr, oper, ifTrue, separator, ifFalse);
         }
 
         return expr;
@@ -109,11 +136,11 @@ public class Parser
     {
         Expr expr = Compare();
 
-        while (Match(BangEqual, Equal))
+        while (Match(BangEqual, EqualEqual))
         {
             Token oper = Previous();
             Expr right = Compare();
-            expr = new Binary(expr, oper, right);
+            expr = new Expr.Binary(expr, oper, right);
         }
 
         return expr;
@@ -127,7 +154,7 @@ public class Parser
         {
             Token oper = Previous();
             Expr right = Term();
-            expr = new Binary(expr, oper, right);
+            expr = new Expr.Binary(expr, oper, right);
         }
 
         return expr;
@@ -141,7 +168,7 @@ public class Parser
         {
             Token oper = Previous();
             Expr right = Factor();
-            expr = new Binary(expr, oper, right);
+            expr = new Expr.Binary(expr, oper, right);
         }
 
         return expr;
@@ -155,7 +182,7 @@ public class Parser
         {
             Token oper = Previous();
             Expr right = Unary();
-            expr = new Binary(expr, oper, right);
+            expr = new Expr.Binary(expr, oper, right);
         }
 
         return expr;
@@ -167,7 +194,7 @@ public class Parser
         {
             Token oper = Previous();
             Expr right = Unary();
-            return new Unary(oper, right);
+            return new Expr.Unary(oper, right);
         }
 
         return Primary();
@@ -175,18 +202,18 @@ public class Parser
 
     private Expr Primary()
     {
-        if (Match(False)) { return new Literal(false); }
-        if (Match(True)) { return new Literal(true); }
-        if (Match(Nil)) { return new Literal(null); }
+        if (Match(False)) { return new Expr.Literal(false); }
+        if (Match(True)) { return new Expr.Literal(true); }
+        if (Match(Nil)) { return new Expr.Literal(null); }
 
-        if (Match(Number, TokenTypes.String)) { return new Literal(Previous().Literal); }
+        if (Match(Number, TokenTypes.String)) { return new Expr.Literal(Previous().Literal); }
 
         if (Match(LeftParen))
         {
             var expr = Expression();
             Consume(RightParen, "Expect ')' after expression.");
 
-            return new Grouping(expr);
+            return new Expr.Grouping(expr);
         }
 
         if (Match(Plus, Minus, Star, Slash, EqualEqual,

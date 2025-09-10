@@ -60,12 +60,12 @@ public static class Lox
         List<Token> tokens = scanner.ScanTokens();
 
         var parser = new Parser(tokens);
-        Expr expression = parser.Parse();
+        List<Stmt> statements = parser.Parse();
 
         if (HadError) return;
 
         // Console.WriteLine(new AstPrinter().Print(expression));
-        _interpreter.Interpret(expression);
+        _interpreter.Interpret(statements);
     }
 
     public static void Error(Token token, string message)

@@ -3,14 +3,16 @@ using static cslox.Models.Token.TokenTypes;
 
 namespace cslox.Services;
 
-public class Interpreter : IVisitor<object>
+public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<Nothing>
 {
-    public void Interpret(Expr expression)
+    public void Interpret(List<Stmt> statements)
     {
         try
         {
-            object value = Evaluate(expression);
-            Console.WriteLine(Stringify(value));
+            foreach (var statement in statements)
+            {
+                Execute(statement);
+            }
         }
         catch (RuntimeError error)
         {
@@ -34,16 +36,29 @@ public class Interpreter : IVisitor<object>
         return obj.ToString()!;
     }
 
-    public object visitGroupingExpr(Grouping expr) => Evaluate(expr.Expression);
+    public Nothing visitExpressionStmt(Stmt.Expression stmt)
+    {
+        Evaluate(stmt.eExpression);
+        return default;
+    }
 
-    public object visitLiteralExpr(Literal expr) => expr.Value;
+    public Nothing visitPrintStmt(Stmt.Print stmt)
+    {
+        var value = Evaluate(stmt.Expression);
+        Console.WriteLine(Stringify(value));
+        return default;
+    }
 
-    public object visitTernaryExpr(Ternary expr)
+    public object visitGroupingExpr(Expr.Grouping expr) => Evaluate(expr.Expression);
+
+    public object visitLiteralExpr(Expr.Literal expr) => expr.Value;
+
+    public object visitTernaryExpr(Expr.Ternary expr)
     {
         throw new NotImplementedException();
     }
 
-    public object visitUnaryExpr(Unary expr)
+    public object visitUnaryExpr(Expr.Unary expr)
     {
         var right = Evaluate(expr.Right);
 
@@ -59,7 +74,7 @@ public class Interpreter : IVisitor<object>
         return null;
     }
 
-    public object visitBinaryExpr(Binary expr)
+    public object visitBinaryExpr(Expr.Binary expr)
     {
         var left = Evaluate(expr.Left);
         var right = Evaluate(expr.Right);
@@ -111,6 +126,8 @@ public class Interpreter : IVisitor<object>
     }
 
     private object Evaluate(Expr expr) => expr.Accept(this);
+
+    private void Execute(Stmt stmt) => stmt.Accept(this);
 
     private bool IsTruthy(Object obj)
     {
