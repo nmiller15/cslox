@@ -1,7 +1,7 @@
 using System.Text;
 using cslox.Services;
 using cslox.Models;
-using cslox.Services;
+using SysEnvironment = System.Environment;
 
 namespace cslox;
 
@@ -17,7 +17,7 @@ public static class Lox
         if (args.Length > 1)
         {
             Console.WriteLine("Usage: cslox [script]");
-            Environment.Exit(64);
+            SysEnvironment.Exit(64);
         }
         else if (args.Length == 1)
         {
@@ -27,7 +27,7 @@ public static class Lox
         {
             RunPrompt();
         }
-        Environment.Exit(0);
+        SysEnvironment.Exit(0);
     }
 
     public static void RunFile(string path)
@@ -36,9 +36,9 @@ public static class Lox
         Run(Encoding.UTF8.GetString(bytes));
 
         if (HadError)
-            Environment.Exit(65);
+            SysEnvironment.Exit(65);
         if (HadRuntimeError)
-            Environment.Exit(70);
+            SysEnvironment.Exit(70);
     }
 
     public static void RunPrompt()
@@ -72,7 +72,7 @@ public static class Lox
     {
         if (token.Type == Token.TokenTypes.EOF)
         {
-            Report(token.Line, " at end", "message");
+            Report(token.Line, " at end", message);
         }
         else
         {
@@ -88,7 +88,7 @@ public static class Lox
     public static void RuntimeError(RuntimeError error)
     {
         Console.Error.WriteLine(error.Message +
-                $"{Environment.NewLine} {error.Token.Line} ]");
+                $"{SysEnvironment.NewLine} {error.Token.Line} ]");
         HadRuntimeError = true;
     }
 

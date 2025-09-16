@@ -8,8 +8,25 @@ public abstract class Stmt
 
     public interface IVisitor<T>
     {
+        T visitBlockStmt(Block stmt);
         T visitExpressionStmt(Expression stmt);
         T visitPrintStmt(Print stmt);
+        T visitVarStmt(Var stmt);
+    }
+
+    public class Block : Stmt
+    {
+        public List<Stmt> Statements { get; }
+
+        public Block(List<Stmt> statements)
+        {
+            Statements = statements;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor)
+        {
+            return visitor.visitBlockStmt(this);
+        }
     }
 
     public class Expression : Stmt
@@ -39,6 +56,23 @@ public abstract class Stmt
         public override T Accept<T>(IVisitor<T> visitor)
         {
             return visitor.visitPrintStmt(this);
+        }
+    }
+
+    public class Var : Stmt
+    {
+        public Token Name { get; }
+        public Expr Initializer { get; }
+
+        public Var(Token name, Expr initializer)
+        {
+            Name = name;
+            Initializer = initializer;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor)
+        {
+            return visitor.visitVarStmt(this);
         }
     }
 

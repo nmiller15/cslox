@@ -1,6 +1,7 @@
 using cslox.Models;
 using static cslox.Models.Token;
 using static cslox.Models.Token.TokenTypes;
+using Environment = System.Environment;
 
 namespace cslox.Services;
 

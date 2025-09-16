@@ -1,10 +1,13 @@
 using cslox.Models;
 using static cslox.Models.Token.TokenTypes;
+using Environment = cslox.Models.Environment;
 
 namespace cslox.Services;
 
 public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<Nothing>
 {
+    private Environment _environment = new();
+
     public void Interpret(List<Stmt> statements)
     {
         try
@@ -47,6 +50,24 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<Nothing>
         var value = Evaluate(stmt.Expression);
         Console.WriteLine(Stringify(value));
         return default;
+    }
+
+    public Nothing visitVarStmt(Stmt.Var stmt)
+    {
+        object value = null;
+        if (stmt.Initializer != null)
+        {
+            value = Evaluate(stmt.Initializer);
+        }
+        _environment.Define(stmt.Name.Lexeme, value);
+        return new Nothing();
+    }
+
+    public object visitAssignExpr(Expr.Assign expr)
+    {
+        object value = Evaluate(expr.Value);
+        _environment.Assign(expr.Name, value);
+        return value;
     }
 
     public object visitGroupingExpr(Expr.Grouping expr) => Evaluate(expr.Expression);
@@ -154,5 +175,34 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<Nothing>
     {
         if (left.GetType() == typeof(double) && right.GetType() == typeof(double)) return;
         throw new RuntimeError(oper, "Operands must be numbers.");
+    }
+
+    public object visitVariableExpr(Expr.Variable expr)
+    {
+        return _environment.Get(expr.Name);
+    }
+
+    public Nothing visitBlockStmt(Stmt.Block stmt)
+    {
+        ExecuteBlock(stmt.Statements, new Environment(_environment));
+        return new Nothing();
+    }
+
+    private void ExecuteBlock(List<Stmt> statements, Environment environment)
+    {
+        Environment previous = _environment;
+
+        try
+        {
+            _environment = environment;
+            foreach (var statement in statements)
+            {
+                Execute(statement);
+            }
+        }
+        finally
+        {
+            _environment = previous;
+        }
     }
 }

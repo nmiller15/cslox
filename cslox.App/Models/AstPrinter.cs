@@ -28,6 +28,16 @@ public class AstPrinter : Expr.IVisitor<string>
     public string visitUnaryExpr(Expr.Unary expr)
         => Parenthesize(expr.Operator.Lexeme, expr.Right);
 
+    public string visitVariableExpr(Expr.Variable expr)
+    {
+        throw new NotImplementedException();
+    }
+
+    public string visitAssignExpr(Expr.Assign expr)
+    {
+        throw new NotImplementedException();
+    }
+
     private string Parenthesize(string name, params Expr[] exprs)
     {
         var builder = new StringBuilder();

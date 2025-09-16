@@ -17,13 +17,17 @@ class Program
             "Grouping : Expr Expression",
             "Literal : object Value",
             "Unary : Token Operator, Expr Right",
-            "Ternary : Expr Condition, Token Operator, Expr IfTrue, Token Separator, Expr IfFalse"
+            "Ternary : Expr Condition, Token Operator, Expr IfTrue, Token Separator, Expr IfFalse",
+            "Variable : Token Name",
+            "Assign : Token Name, Expr Value"
         });
 
         DefineAst(outputDir, "Stmt", new List<string>()
         {
+            "Block : List<Stmt> Statements",
             "Expression : Expr eExpression",
-            "Print : Expr Expression"
+            "Print : Expr Expression",
+            "Var : Token Name, Expr Initializer"
         });
     }
 

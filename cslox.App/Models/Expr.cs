@@ -13,6 +13,8 @@ public abstract class Expr
         T visitLiteralExpr(Literal expr);
         T visitUnaryExpr(Unary expr);
         T visitTernaryExpr(Ternary expr);
+        T visitVariableExpr(Variable expr);
+        T visitAssignExpr(Assign expr);
     }
 
     public class Binary : Expr
@@ -101,6 +103,38 @@ public abstract class Expr
         public override T Accept<T>(IVisitor<T> visitor)
         {
             return visitor.visitTernaryExpr(this);
+        }
+    }
+
+    public class Variable : Expr
+    {
+        public Token Name { get; }
+
+        public Variable(Token name)
+        {
+            Name = name;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor)
+        {
+            return visitor.visitVariableExpr(this);
+        }
+    }
+
+    public class Assign : Expr
+    {
+        public Token Name { get; }
+        public Expr Value { get; }
+
+        public Assign(Token name, Expr value)
+        {
+            Name = name;
+            Value = value;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor)
+        {
+            return visitor.visitAssignExpr(this);
         }
     }
 
