@@ -1,4 +1,6 @@
-print "Hello, world";
-print true;
-print 4 == 2;
-print "This is a script that is being read by my own interpreter!";
+var a = 0;
+while (a < 4)
+{
+    print "The var a is " + a;
+    a = a + 1;
+}

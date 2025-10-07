@@ -45,6 +45,19 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<Nothing>
         return default;
     }
 
+    public Nothing visitIfStmt(Stmt.If stmt)
+    {
+        if (IsTruthy(Evaluate(stmt.Condition)))
+        {
+            Execute(stmt.ThenBranch);
+        }
+        else if (stmt.ElseBranch != null)
+        {
+            Execute(stmt.ElseBranch);
+        }
+        return default;
+    }
+
     public Nothing visitPrintStmt(Stmt.Print stmt)
     {
         var value = Evaluate(stmt.Expression);
@@ -63,6 +76,15 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<Nothing>
         return new Nothing();
     }
 
+    public Nothing visitWhileStmt(Stmt.While stmt)
+    {
+        while (IsTruthy(Evaluate(stmt.Condition)))
+        {
+            Execute(stmt.Body);
+        }
+        return new Nothing();
+    }
+
     public object visitAssignExpr(Expr.Assign expr)
     {
         object value = Evaluate(expr.Value);
@@ -73,6 +95,22 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<Nothing>
     public object visitGroupingExpr(Expr.Grouping expr) => Evaluate(expr.Expression);
 
     public object visitLiteralExpr(Expr.Literal expr) => expr.Value;
+
+    public object visitLogicalExpr(Expr.Logical expr)
+    {
+        object left = Evaluate(expr.Left);
+
+        if (expr.Operator.Type == Or)
+        {
+            if (IsTruthy(left)) { return left; }
+        }
+        else
+        {
+            if (!IsTruthy(left)) { return left; }
+        }
+
+        return Evaluate(expr.Right);
+    }
 
     public object visitTernaryExpr(Expr.Ternary expr)
     {

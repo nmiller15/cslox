@@ -29,9 +29,27 @@ public class Parser
 
     private Stmt Statement()
     {
+        if (Match(If)) return IfStatement();
         if (Match(Print)) return PrintStatement();
+        if (Match(While)) return WhileStatement();
         if (Match(LeftBrace)) return new Stmt.Block(Block());
         return ExpressionStatement();
+    }
+
+    private Stmt IfStatement()
+    {
+        Consume(LeftParen, "Expect '(' after 'if'.");
+        Expr condition = Expression();
+        Consume(RightParen, "Expect ')' after if condition.");
+
+        Stmt thenBranch = Statement();
+        Stmt elseBranch = null;
+        if (Match(Else))
+        {
+            elseBranch = Statement();
+        }
+
+        return new Stmt.If(condition, thenBranch, elseBranch);
     }
 
     private Stmt PrintStatement()
@@ -39,6 +57,16 @@ public class Parser
         var value = Expression();
         Consume(Semicolon, "Expect ';' after value.");
         return new Stmt.Print(value);
+    }
+
+    private Stmt WhileStatement()
+    {
+        Consume(LeftParen, "Expect '(' after 'while'.");
+        Expr condition = Expression();
+        Consume(RightParen, "Expect ')' after condition.");
+        Stmt body = Statement();
+
+        return new Stmt.While(condition, body);
     }
 
     private Stmt VarDeclaration()
@@ -77,7 +105,7 @@ public class Parser
 
     private Expr Assignment()
     {
-        Expr expr = Equality();
+        Expr expr = Or();
 
         if (Match(Equal))
         {
@@ -91,6 +119,34 @@ public class Parser
             }
 
             Error(equals, "Invalid assignment target.");
+        }
+
+        return expr;
+    }
+
+    private Expr Or()
+    {
+        Expr expr = And();
+
+        while (Match(TokenTypes.Or))
+        {
+            Token oper = Previous();
+            Expr right = And();
+            expr = new Expr.Logical(expr, oper, right);
+        }
+
+        return expr;
+    }
+
+    private Expr And()
+    {
+        Expr expr = Equality();
+
+        while (Match(TokenTypes.And))
+        {
+            Token oper = Previous();
+            Expr right = Equality();
+            expr = new Expr.Logical(expr, oper, right);
         }
 
         return expr;

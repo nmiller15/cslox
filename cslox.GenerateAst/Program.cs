@@ -16,6 +16,7 @@ class Program
             "Binary : Expr Left, Token Operator, Expr Right",
             "Grouping : Expr Expression",
             "Literal : object Value",
+            "Logical : Expr Left, Token Operator, Expr Right",
             "Unary : Token Operator, Expr Right",
             "Ternary : Expr Condition, Token Operator, Expr IfTrue, Token Separator, Expr IfFalse",
             "Variable : Token Name",
@@ -26,8 +27,10 @@ class Program
         {
             "Block : List<Stmt> Statements",
             "Expression : Expr eExpression",
+            "If : Expr Condition, Stmt ThenBranch, Stmt ElseBranch",
             "Print : Expr Expression",
-            "Var : Token Name, Expr Initializer"
+            "Var : Token Name, Expr Initializer",
+            "While : Expr Condition, Stmt Body"
         });
     }
 
