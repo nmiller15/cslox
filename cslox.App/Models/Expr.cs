@@ -9,6 +9,7 @@ public abstract class Expr
     public interface IVisitor<T>
     {
         T visitBinaryExpr(Binary expr);
+        T visitCallExpr(Call expr);
         T visitGroupingExpr(Grouping expr);
         T visitLiteralExpr(Literal expr);
         T visitLogicalExpr(Logical expr);
@@ -34,6 +35,25 @@ public abstract class Expr
         public override T Accept<T>(IVisitor<T> visitor)
         {
             return visitor.visitBinaryExpr(this);
+        }
+    }
+
+    public class Call : Expr
+    {
+        public Expr Callee { get; }
+        public Token Paren { get; }
+        public List<Expr> Arguments { get; }
+
+        public Call(Expr callee, Token paren, List<Expr> arguments)
+        {
+            Callee = callee;
+            Paren = paren;
+            Arguments = arguments;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor)
+        {
+            return visitor.visitCallExpr(this);
         }
     }
 

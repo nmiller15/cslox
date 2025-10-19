@@ -1,12 +1,33 @@
 using cslox.Models;
 using static cslox.Models.Token.TokenTypes;
 using Environment = cslox.Models.Environment;
+using Return = cslox.Models.Return;
 
 namespace cslox.Services;
 
 public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<Nothing>
 {
-    private Environment _environment = new();
+    public Environment _globals = new();
+    private Environment _environment;
+
+    public Interpreter()
+    {
+        _environment = _globals;
+
+        _globals.Define("clock", new ClockCallable());
+    }
+
+    private class ClockCallable : ILoxCallable
+    {
+        public int Arity() => 0;
+
+        public object Call(Interpreter interpreter, List<object> arguments)
+        {
+            return (double)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() / 1000.0;
+        }
+
+        public override string ToString() => "<native fn>";
+    }
 
     public void Interpret(List<Stmt> statements)
     {
@@ -45,6 +66,13 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<Nothing>
         return default;
     }
 
+    public Nothing visitFunctionStmt(Stmt.Function stmt)
+    {
+        LoxFunction function = new LoxFunction(stmt, _environment);
+        _environment.Define(stmt.Name.Lexeme, function);
+        return default;
+    }
+
     public Nothing visitIfStmt(Stmt.If stmt)
     {
         if (IsTruthy(Evaluate(stmt.Condition)))
@@ -63,6 +91,14 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<Nothing>
         var value = Evaluate(stmt.Expression);
         Console.WriteLine(Stringify(value));
         return default;
+    }
+
+    public Nothing visitReturnStmt(Stmt.Return stmt)
+    {
+        object value = null;
+        if (stmt.Value != null) value = Evaluate(stmt.Value);
+
+        throw new Return(value);
     }
 
     public Nothing visitVarStmt(Stmt.Var stmt)
@@ -184,6 +220,32 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<Nothing>
         return null;
     }
 
+    public object visitCallExpr(Expr.Call expr)
+    {
+        object callee = Evaluate(expr.Callee);
+
+        List<object> arguments = new();
+        foreach (Expr argument in expr.Arguments)
+        {
+            arguments.Add(Evaluate(argument));
+        }
+
+        if (callee is not ILoxCallable)
+        {
+            throw new RuntimeError(expr.Paren, "Can only call functions and classes.");
+        }
+
+        ILoxCallable function = (ILoxCallable)callee;
+        if (arguments.Count != function.Arity())
+        {
+            throw new RuntimeError(expr.Paren, "Expected " +
+                    function.Arity() + " argument but got " +
+                    arguments.Count + ".");
+        }
+
+        return function.Call(this, arguments);
+    }
+
     private object Evaluate(Expr expr) => expr.Accept(this);
 
     private void Execute(Stmt stmt) => stmt.Accept(this);
@@ -226,7 +288,7 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<Nothing>
         return new Nothing();
     }
 
-    private void ExecuteBlock(List<Stmt> statements, Environment environment)
+    public void ExecuteBlock(List<Stmt> statements, Environment environment)
     {
         Environment previous = _environment;
 

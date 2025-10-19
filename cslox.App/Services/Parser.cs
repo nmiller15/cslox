@@ -1,6 +1,7 @@
 using cslox.Models;
 using static cslox.Models.Token;
 using static cslox.Models.Token.TokenTypes;
+using Return = cslox.Models.Return;
 
 namespace cslox.Services;
 
@@ -29,11 +30,72 @@ public class Parser
 
     private Stmt Statement()
     {
+        if (Match(For)) return ForStatement();
         if (Match(If)) return IfStatement();
         if (Match(Print)) return PrintStatement();
+        if (Match(TokenTypes.Return)) return ReturnStatement();
         if (Match(While)) return WhileStatement();
         if (Match(LeftBrace)) return new Stmt.Block(Block());
         return ExpressionStatement();
+    }
+
+    private Stmt ForStatement()
+    {
+        Consume(LeftParen, "Expect '(' after 'for'.");
+
+        Stmt initializer;
+        if (Match(Semicolon))
+        {
+            initializer = null;
+        }
+        else if (Match(Var))
+        {
+            initializer = VarDeclaration();
+        }
+        else
+        {
+            initializer = ExpressionStatement();
+        }
+
+        Expr condition = null;
+        if (!Check(Semicolon))
+        {
+            condition = Expression();
+        }
+
+        Consume(Semicolon, "Expect ';' after loop condition.");
+
+        Expr increment = null;
+        if (!Check(Semicolon))
+        {
+            increment = Expression();
+        }
+
+        Consume(RightParen, "Expect ')' after for clauses.");
+
+        Stmt body = Statement();
+        if (increment != null)
+        {
+            body = new Stmt.Block(new List<Stmt>
+            {
+                body,
+                new Stmt.Expression(increment)
+            });
+        }
+
+        if (condition == null) { condition = new Expr.Literal(true); }
+        body = new Stmt.While(condition, body);
+
+        if (initializer != null)
+        {
+            body = new Stmt.Block(new List<Stmt>
+            {
+                initializer,
+                body
+            });
+        }
+
+        return body;
     }
 
     private Stmt IfStatement()
@@ -57,6 +119,19 @@ public class Parser
         var value = Expression();
         Consume(Semicolon, "Expect ';' after value.");
         return new Stmt.Print(value);
+    }
+
+    private Stmt ReturnStatement()
+    {
+        var keyword = Previous();
+        Expr value = null;
+        if (!Check(Semicolon))
+        {
+            value = Expression();
+        }
+
+        Consume(Semicolon, "Expect ';' after return value.");
+        return new Stmt.Return(keyword, value);
     }
 
     private Stmt WhileStatement()
@@ -88,6 +163,31 @@ public class Parser
         var expr = Expression();
         Consume(Semicolon, "Expect ';' after expression.");
         return new Stmt.Expression(expr);
+    }
+
+    private Stmt.Function Function(string kind)
+    {
+        Token name = Consume(Identifier, "Expect " + kind + " name.");
+        Consume(LeftParen, "Expect '(' after " + kind + " name.");
+        List<Token> parameters = new();
+        if (!Check(RightParen))
+        {
+            do
+            {
+                if (parameters.Count >= 255)
+                {
+                    Error(Peek(), "Can't have more than 255 parameters.");
+                }
+
+                parameters.Add(
+                        Consume(Identifier, "Expect parameter name."));
+            } while (Match(Comma));
+        }
+        Consume(RightParen, "Expect ')' after parameters.");
+
+        Consume(LeftBrace, "Expect '{' before " + kind + " body.");
+        List<Stmt> body = Block();
+        return new Stmt.Function(name, parameters, body);
     }
 
     private List<Stmt> Block()
@@ -202,6 +302,7 @@ public class Parser
     {
         try
         {
+            if (Match(Fun)) return Function("function");
             if (Match(Var)) return VarDeclaration();
             return Statement();
         }
@@ -308,7 +409,47 @@ public class Parser
             return new Expr.Unary(oper, right);
         }
 
-        return Primary();
+        return Call();
+    }
+
+    private Expr FinishCall(Expr callee)
+    {
+        List<Expr> arguments = new List<Expr>();
+        if (!Check(RightParen))
+        {
+            do
+            {
+                if (arguments.Count >= 255)
+                {
+                    Error(Peek(), "Can't have more than 255 arguments.");
+                }
+                arguments.Add(Expression());
+            }
+            while (Match(Comma));
+        }
+
+        Token paren = Consume(RightParen, "Expect ')' after arguments.");
+
+        return new Expr.Call(callee, paren, arguments);
+    }
+
+    private Expr Call()
+    {
+        Expr expr = Primary();
+
+        while (true)
+        {
+            if (Match(LeftParen))
+            {
+                expr = FinishCall(expr);
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return expr;
     }
 
     private Expr Primary()
@@ -370,7 +511,7 @@ public class Parser
                 case If:
                 case While:
                 case Print:
-                case Return:
+                case TokenTypes.Return:
                     return;
             }
 

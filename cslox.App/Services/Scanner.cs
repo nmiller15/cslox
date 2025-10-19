@@ -19,7 +19,7 @@ public class Scanner
         { "nil", Nil },
         { "or", Or },
         { "print", Print },
-        { "return", Return },
+        { "return", TokenTypes.Return },
         { "super", Super },
         { "this", This },
         { "true", True },

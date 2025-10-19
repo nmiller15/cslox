@@ -1,5 +1,16 @@
-var a = 1;
-{
-  var a = a + 2;
-  print a;
+fun makeCounter() {
+    var i = 0;
+    fun count() {
+        i = i + 1;
+        print i;
+    }
+
+    return count;
 }
+
+var counter = makeCounter();
+
+counter();
+counter();
+counter();
+counter();

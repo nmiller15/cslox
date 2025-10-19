@@ -14,6 +14,7 @@ class Program
         DefineAst(outputDir, "Expr", new List<string>()
         {
             "Binary : Expr Left, Token Operator, Expr Right",
+            "Call : Expr Callee, Token Paren, List<Expr> Arguments",
             "Grouping : Expr Expression",
             "Literal : object Value",
             "Logical : Expr Left, Token Operator, Expr Right",
@@ -27,8 +28,10 @@ class Program
         {
             "Block : List<Stmt> Statements",
             "Expression : Expr eExpression",
+            "Function : Token Name, List<Token> Parameters, List<Stmt> Body",
             "If : Expr Condition, Stmt ThenBranch, Stmt ElseBranch",
             "Print : Expr Expression",
+            "Return : Token Keyword, Expr Value",
             "Var : Token Name, Expr Initializer",
             "While : Expr Condition, Stmt Body"
         });
