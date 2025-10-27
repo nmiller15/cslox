@@ -1,0 +1,28 @@
+var absolute = abs(-10);
+print("Absolute value of -10: " + absolute);
+
+var sum = add(4, 5);
+print("Sum of 4 and 5: " + sum);
+
+var bottom = floor(50.78);
+print("The floor of 50.78: " + bottom);
+
+var ceiling = ceil(50.78);
+print("The ceiling of 50.78: " + ceil);
+
+var rounded = round(50.78);
+print("50.78 after being rounded: " + rounded);
+
+fun randomNumber(max) {
+    return round(rand() * max);
+}
+
+var num1 = randomNumber(10); 
+var num2 = randomNumber(10); 
+var num3 = randomNumber(10); 
+
+
+print("Three random numbers: ");
+print(num1);
+print(num2);
+print(num3);

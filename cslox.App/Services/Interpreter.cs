@@ -1,5 +1,6 @@
 using cslox.Models;
 using cslox.StandardLib;
+using cslox.StandardLib.Math;
 using static cslox.Models.Token.TokenTypes;
 using Environment = cslox.Models.Environment;
 using Return = cslox.Models.Return;
@@ -18,6 +19,15 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<Nothing>
 
         _globals.Define("clock", new ClockCallable());
         _globals.Define("read", new ReadCallable());
+
+        _globals.Define("add", new AddCallable());
+        _globals.Define("abs", new AbsCallable());
+        _globals.Define("floor", new FloorCallable());
+        _globals.Define("ceil", new CeilCallable());
+        _globals.Define("round", new RoundCallable());
+        _globals.Define("rand", new RandCallable());
+        _globals.Define("strint", new StrintCallable());
+        _globals.Define("strdoub", new StrdoubCallable());
     }
 
 

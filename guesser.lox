@@ -1,0 +1,39 @@
+var count = 0;
+var number = ceil(rand() * 100);
+var continue = true;
+
+print("Guess a number, 1 out of 100!");
+
+while (continue) {
+    var in = read("What's your guess: ");
+    count = count + 1;
+
+    if (strdoub(in) == number) {
+        print("Congratulations! You guessed the number in " + count + " guesses!");
+        if (count < 3) {
+            print("WOW!!"); 
+        } else if (count < 5) {
+            print("Very good!");
+        } else if (count < 10) {
+            print("That was okay.");
+        } else if (count > 10) {
+            print("You should try the game again...");
+        }
+
+        continue = false;
+    }
+
+    if (strdoub(in) > number) {
+        print("Nope! You're too high!");
+    }
+
+
+    if (strdoub(in) < number) {
+        print("Nope! You're too low!");
+    }
+    
+    if (strdoub(in) != number) 
+    {
+        print("Nope! Try again!");
+    }
+}
