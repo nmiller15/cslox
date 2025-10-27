@@ -15,6 +15,11 @@ public class LoxClass : ILoxCallable
         _superclass = superclass;
     }
 
+    public void AddMethod(string name, LoxFunction method)
+    {
+        _methods[name] = method;
+    }
+
     public LoxFunction FindMethod(string name)
     {
         if (_methods.ContainsKey(name))

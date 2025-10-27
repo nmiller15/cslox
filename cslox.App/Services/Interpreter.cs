@@ -1,4 +1,5 @@
 using cslox.Models;
+using cslox.StandardLib;
 using static cslox.Models.Token.TokenTypes;
 using Environment = cslox.Models.Environment;
 using Return = cslox.Models.Return;
@@ -16,19 +17,9 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<Nothing>
         _environment = _globals;
 
         _globals.Define("clock", new ClockCallable());
+        _globals.Define("read", new ReadCallable());
     }
 
-    private class ClockCallable : ILoxCallable
-    {
-        public int Arity() => 0;
-
-        public object Call(Interpreter interpreter, List<object> arguments)
-        {
-            return (double)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() / 1000.0;
-        }
-
-        public override string ToString() => "<native fn>";
-    }
 
     public void Interpret(List<Stmt> statements)
     {
