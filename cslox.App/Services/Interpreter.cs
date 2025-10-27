@@ -9,6 +9,7 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<Nothing>
 {
     public Environment _globals = new();
     private Environment _environment;
+    private readonly Dictionary<Expr, int> _locals = new();
 
     public Interpreter()
     {
@@ -68,7 +69,7 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<Nothing>
 
     public Nothing visitFunctionStmt(Stmt.Function stmt)
     {
-        LoxFunction function = new LoxFunction(stmt, _environment);
+        LoxFunction function = new LoxFunction(stmt, _environment, false);
         _environment.Define(stmt.Name.Lexeme, function);
         return default;
     }
@@ -124,7 +125,15 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<Nothing>
     public object visitAssignExpr(Expr.Assign expr)
     {
         object value = Evaluate(expr.Value);
-        _environment.Assign(expr.Name, value);
+
+        if (_locals.TryGetValue(expr, out var distance))
+        {
+            _environment.AssignAt(distance, expr.Name, value);
+        }
+        else
+        {
+            _globals.Assign(expr.Name, value);
+        }
         return value;
     }
 
@@ -146,6 +155,39 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<Nothing>
         }
 
         return Evaluate(expr.Right);
+    }
+
+    public object visitSetExpr(Expr.Set expr)
+    {
+        var oObject = Evaluate(expr.oObject);
+
+        if (oObject is not LoxInstance instance)
+        {
+            throw new RuntimeError(expr.Name, "Only instances have fields.");
+        }
+
+        var value = Evaluate(expr.Value);
+        instance.Set(expr.Name, value);
+        return value;
+    }
+
+    public object visitSuperExpr(Expr.Super expr)
+    {
+        int distance = _locals[expr];
+        var superclass = (LoxClass)_environment.GetAt(distance, "super");
+        var oObject = (LoxInstance)_environment.GetAt(distance - 1, "this");
+        var method = superclass.FindMethod(expr.Method.Lexeme);
+        if (method == null)
+        {
+            throw new RuntimeError(expr.Method,
+                    "Undefined property '" + expr.Method.Lexeme + "'.");
+        }
+        return method.Bind(oObject);
+    }
+
+    public object visitThisExpr(Expr.This expr)
+    {
+        return LookUpVariable(expr.Keyword, expr);
     }
 
     public object visitTernaryExpr(Expr.Ternary expr)
@@ -246,9 +288,25 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<Nothing>
         return function.Call(this, arguments);
     }
 
+    public object visitGetExpr(Expr.Get expr)
+    {
+        object oObject = Evaluate(expr.oObject);
+        if (oObject is LoxInstance instance)
+        {
+            return instance.Get(expr.Name);
+        }
+
+        throw new RuntimeError(expr.Name, "Only instances have properties.");
+    }
+
     private object Evaluate(Expr expr) => expr.Accept(this);
 
     private void Execute(Stmt stmt) => stmt.Accept(this);
+
+    public void Resolve(Expr expr, int depth)
+    {
+        _locals[expr] = depth;
+    }
 
     private bool IsTruthy(Object obj)
     {
@@ -279,13 +337,64 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<Nothing>
 
     public object visitVariableExpr(Expr.Variable expr)
     {
-        return _environment.Get(expr.Name);
+        return LookUpVariable(expr.Name, expr);
+    }
+
+    private object LookUpVariable(Token name, Expr expr)
+    {
+        if (_locals.TryGetValue(expr, out var distance))
+        {
+            return _environment.GetAt(distance, name.Lexeme);
+        }
+        else
+        {
+            return _globals.Get(name);
+        }
     }
 
     public Nothing visitBlockStmt(Stmt.Block stmt)
     {
         ExecuteBlock(stmt.Statements, new Environment(_environment));
         return new Nothing();
+    }
+
+    public Nothing visitClassStmt(Stmt.Class stmt)
+    {
+        object superclass = null;
+        if (stmt.Superclass != null)
+        {
+            superclass = Evaluate(stmt.Superclass);
+            if (superclass is not LoxClass)
+            {
+                throw new RuntimeError(stmt.Superclass.Name,
+                        "Superclass must be a class.");
+            }
+        }
+
+        _environment.Define(stmt.Name.Lexeme, null);
+
+        if (stmt.Superclass != null)
+        {
+            _environment = new Environment(_environment);
+            _environment.Define("super", superclass);
+        }
+
+        var methods = new Dictionary<string, LoxFunction>();
+
+        foreach (var method in stmt.Methods)
+        {
+            methods[method.Name.Lexeme] = new LoxFunction(method, _environment, method.Name.Lexeme.Equals("init"));
+        }
+
+        LoxClass klass = new LoxClass(stmt.Name.Lexeme, (LoxClass)superclass, methods);
+
+        if (superclass != null)
+        {
+            _environment = _environment.Enclosing;
+
+        }
+        _environment.Assign(stmt.Name, klass);
+        return default;
     }
 
     public void ExecuteBlock(List<Stmt> statements, Environment environment)

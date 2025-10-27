@@ -15,6 +15,10 @@ class Program
         {
             "Binary : Expr Left, Token Operator, Expr Right",
             "Call : Expr Callee, Token Paren, List<Expr> Arguments",
+            "Get : Expr oObject, Token Name",
+            "Set : Expr oObject, Token Name, Expr Value",
+            "Super : Token Keyword, Token Method",
+            "This : Token Keyword",
             "Grouping : Expr Expression",
             "Literal : object Value",
             "Logical : Expr Left, Token Operator, Expr Right",
@@ -27,6 +31,7 @@ class Program
         DefineAst(outputDir, "Stmt", new List<string>()
         {
             "Block : List<Stmt> Statements",
+            "Class : Token Name, Expr.Variable Superclass, List<Stmt.Function> Methods",
             "Expression : Expr eExpression",
             "Function : Token Name, List<Token> Parameters, List<Stmt> Body",
             "If : Expr Condition, Stmt ThenBranch, Stmt ElseBranch",

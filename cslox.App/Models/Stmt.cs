@@ -9,6 +9,7 @@ public abstract class Stmt
     public interface IVisitor<T>
     {
         T visitBlockStmt(Block stmt);
+        T visitClassStmt(Class stmt);
         T visitExpressionStmt(Expression stmt);
         T visitFunctionStmt(Function stmt);
         T visitIfStmt(If stmt);
@@ -30,6 +31,25 @@ public abstract class Stmt
         public override T Accept<T>(IVisitor<T> visitor)
         {
             return visitor.visitBlockStmt(this);
+        }
+    }
+
+    public class Class : Stmt
+    {
+        public Token Name { get; }
+        public Expr.Variable Superclass { get; }
+        public List<Stmt.Function> Methods { get; }
+
+        public Class(Token name, Expr.Variable superclass, List<Stmt.Function> methods)
+        {
+            Name = name;
+            Superclass = superclass;
+            Methods = methods;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor)
+        {
+            return visitor.visitClassStmt(this);
         }
     }
 

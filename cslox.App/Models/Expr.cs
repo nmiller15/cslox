@@ -10,6 +10,10 @@ public abstract class Expr
     {
         T visitBinaryExpr(Binary expr);
         T visitCallExpr(Call expr);
+        T visitGetExpr(Get expr);
+        T visitSetExpr(Set expr);
+        T visitSuperExpr(Super expr);
+        T visitThisExpr(This expr);
         T visitGroupingExpr(Grouping expr);
         T visitLiteralExpr(Literal expr);
         T visitLogicalExpr(Logical expr);
@@ -54,6 +58,74 @@ public abstract class Expr
         public override T Accept<T>(IVisitor<T> visitor)
         {
             return visitor.visitCallExpr(this);
+        }
+    }
+
+    public class Get : Expr
+    {
+        public Expr oObject { get; }
+        public Token Name { get; }
+
+        public Get(Expr oobject, Token name)
+        {
+            oObject = oobject;
+            Name = name;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor)
+        {
+            return visitor.visitGetExpr(this);
+        }
+    }
+
+    public class Set : Expr
+    {
+        public Expr oObject { get; }
+        public Token Name { get; }
+        public Expr Value { get; }
+
+        public Set(Expr oobject, Token name, Expr value)
+        {
+            oObject = oobject;
+            Name = name;
+            Value = value;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor)
+        {
+            return visitor.visitSetExpr(this);
+        }
+    }
+
+    public class Super : Expr
+    {
+        public Token Keyword { get; }
+        public Token Method { get; }
+
+        public Super(Token keyword, Token method)
+        {
+            Keyword = keyword;
+            Method = method;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor)
+        {
+            return visitor.visitSuperExpr(this);
+        }
+    }
+
+    public class This : Expr
+    {
+        public Token Keyword { get; }
+
+        public This(Token keyword)
+        {
+            Keyword = keyword;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor)
+        {
+            return visitor.visitThisExpr(this);
         }
     }
 

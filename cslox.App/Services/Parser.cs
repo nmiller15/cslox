@@ -217,6 +217,10 @@ public class Parser
                 Token name = ((Expr.Variable)expr).Name;
                 return new Expr.Assign(name, value);
             }
+            else if (expr is Expr.Get get)
+            {
+                return new Expr.Set(get.oObject, get.Name, value);
+            }
 
             Error(equals, "Invalid assignment target.");
         }
@@ -302,6 +306,7 @@ public class Parser
     {
         try
         {
+            if (Match(Class)) return ClassDeclaration();
             if (Match(Fun)) return Function("function");
             if (Match(Var)) return VarDeclaration();
             return Statement();
@@ -311,6 +316,30 @@ public class Parser
             Synchronize();
             return null;
         }
+    }
+
+    private Stmt ClassDeclaration()
+    {
+        var name = Consume(Identifier, "Expect class name.");
+
+        Expr.Variable superclass = null;
+        if (Match(Less))
+        {
+            Consume(Identifier, "Expect superclass name.");
+            superclass = new Expr.Variable(Previous());
+        }
+
+        Consume(LeftBrace, "Expect '{' before class body.");
+
+        var methods = new List<Stmt.Function>();
+        while (!Check(RightBrace) && !IsAtEnd())
+        {
+            methods.Add(Function("method"));
+        }
+
+        Consume(RightBrace, "Expect '}' after class body.");
+
+        return new Stmt.Class(name, superclass, methods);
     }
 
     // private Expr Block()
@@ -443,6 +472,12 @@ public class Parser
             {
                 expr = FinishCall(expr);
             }
+            else if (Match(Dot))
+            {
+                var name = Consume(Identifier,
+                        "Expect property name after '.'.");
+                expr = new Expr.Get(expr, name);
+            }
             else
             {
                 break;
@@ -459,6 +494,17 @@ public class Parser
         if (Match(Nil)) { return new Expr.Literal(null); }
 
         if (Match(Number, TokenTypes.String)) { return new Expr.Literal(Previous().Literal); }
+
+        if (Match(Super))
+        {
+            var keyword = Previous();
+            Consume(Dot, "Expect '.' after 'super'.");
+            var method = Consume(Identifier,
+                    "Expect superclass method name.");
+            return new Expr.Super(keyword, method);
+        }
+
+        if (Match(This)) { return new Expr.This(Previous()); }
 
         if (Match(Identifier)) { return new Expr.Variable(Previous()); }
 
